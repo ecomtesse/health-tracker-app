@@ -26,7 +26,7 @@ def disconnect_from_db(response):
 	return response
 
 # Home/Index Route
-@app.route('/')
+@app.route('/home')
 def home():
 	user = session.get('user', None)
 	if user is None:
@@ -159,7 +159,7 @@ def register():
 		INSERT INTO users
 		(username, password_hash)
 		VALUES (%s, %s)
-		RETURNING id, username
+		RETURNING *
 	"""
 	cur = g.db['cursor']
 	try:
@@ -169,6 +169,7 @@ def register():
 	g.db['connection'].commit()
 	user = cur.fetchone()
 	# print(user)
+	user.pop('password_hash')
 	# import session at top to use
 	session['user'] = user
 	return jsonify(success=True, user=user)
