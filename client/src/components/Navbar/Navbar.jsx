@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from "react-router-dom"
 import Box from '@mui/material/Box'
 import AppBar from '@mui/material/AppBar'
 import Divider from '@mui/material/Divider'
@@ -12,11 +13,36 @@ import ListItemText from '@mui/material/ListItemText'
 import MenuIcon from '@mui/icons-material/Menu'
 import LogoutIcon from '@mui/icons-material/Logout'
 import Typography from '@mui/material/Typography'
+import SmallLogo from '../../images/health-tracker-small.png'
 // import Button from '@mui/material/Button'
 
 const drawerWidth = 240
-const navItems = ["Home", "Heart Rate", "Weight", "BMI", "Blood Pressure", "Find a Doctor"]
 
+const navItems = [{
+  text: "Home",
+  path: '/',
+},
+{
+  text: "Weight",
+  path: '/weight',
+},
+{
+  text: "Height",
+  path: '/height',
+},
+{
+  text: "Heart Rate",
+  path: '/heart_rate',
+},
+{
+  text: "Find A Doctor",
+  path: '/finddoctor',
+},
+{
+  text: "Account Details",
+  path: '/user/details',
+},
+]
 const Navbar = (props) => {
   const { window, handleLogout } = props
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -31,10 +57,15 @@ const Navbar = (props) => {
       <Divider />
       <List>
         {navItems.map((item) => (
-          <ListItem key={item} disablePadding >
+          <ListItem key={item.text} disablePadding >
+            {/* {item.component} */}
+            {/* <Link to={item.path} sx={{ textDecoration: "none"}}> */}
             <ListItemButton sx={{ textAlign: 'center' }}>
-              <ListItemText primary={item} />
+              <ListItemText>
+                <Link to={item.path} style={{ textDecoration: "none", color: "inherit" }}>{item.text} </Link>
+              </ListItemText>
             </ListItemButton>
+            {/* </Link> */}
           </ListItem>
         ))}
       </List>
@@ -46,7 +77,7 @@ const Navbar = (props) => {
   return (
     <Box className="header" sx={{ display: 'flex' }}>
       <AppBar position="sticky" component="nav">
-        <Toolbar>
+        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
           <IconButton
             size="large"
             edge="start"
@@ -64,13 +95,15 @@ const Navbar = (props) => {
               </Button>
             ))}
           </Box> */}
-          <Typography
+          <Box
             variant="inherit"
-            component="title"
-            sx={{ flexGrow: 1, display: "flex", justifyContent: "center" }}
+            component="img"
+            sx={{ flexGrow: 1, display: "flex", justifyContent: "center", maxWidth: 40 }}
+            src={SmallLogo}
+
           >
-            Menu Bar
-          </Typography>
+
+          </Box>
           <IconButton
             size="large"
             edge="end"

@@ -1,10 +1,11 @@
 import { useState } from "react"
 import { Link } from 'react-router-dom'
-import Container from '@mui/material/Container'
+import { Container, Grid } from '@mui/material'
 import TextField from '@mui/material/TextField'
-import Box from '@mui/material/Box'
+import {Box, CardMedia} from '@mui/material'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button';
+import Logo from '../../images/health-tracker.png'
 
 const Login = ({ handleLogin }) => {
   const [fields, setFields] = useState({ username: '', password: '' })
@@ -21,7 +22,7 @@ const Login = ({ handleLogin }) => {
     event.preventDefault()
     const res = await fetch('/login', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json'},
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(fields)
     })
     // console.log(res)
@@ -31,37 +32,66 @@ const Login = ({ handleLogin }) => {
   }
 
   return (
-    <Container sx={{mb: 20}} component="main" maxWidth="xs">
+    <Container sx={{ mb: 20 }} component="main" maxWidth="xs">
+      <Box className="logo" sx={{ width: "auto", maxWidth: 350, margin: "auto" }}>
+        <CardMedia
+          image={Logo}
+          align="center"
+          sx={{
+            paddingTop: '100%',
+            backgroundSize: 'cover',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center'
+          }}
+        >
+
+        </CardMedia>
+      </Box>
       <Box
         sx={{
-          marginTop: 8,
+          marginTop: 1,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-        }}  
+        }}
       >
-      <Typography variant="h4" component="h1">Log In</Typography>    
+        <Typography component="h1" variant="h4">
+          Log In
+        </Typography>
         <form onSubmit={handleSubmit}>
-          <TextField
-            required
-            value={fields.username}
-            onChange={handleChange}
-            name="username"
-            type="text"
-            id="username"
-            label="username"
-            autoFocus
-          />
-          <TextField
-            required
-            value={fields.password}
-            onChange={handleChange}
-            name="password"
-            type="text"
-            id="password"
-            label="password"
-          />
-          <Button
+          <Box sx={{ mt: 3 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  value={fields.username}
+                  onChange={handleChange}
+                  name="username"
+                  type="text"
+                  label="Username"
+                  // type="username"
+                  id="username"
+                  autoComplete="username"
+                  autoFocus
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  value={fields.password}
+                  onChange={handleChange}
+                  name="password"
+                  label="Password"
+                  type="password"
+                  id="password"
+                  autoComplete="new-password"
+                />
+              </Grid>
+            </Grid>
+
+            <Button
               type="submit"
               fullWidth
               variant="contained"
@@ -69,11 +99,12 @@ const Login = ({ handleLogin }) => {
             >
               Sign In
             </Button>
-            <Link to='/signup' style={{textDecoration:'none'}}>
+            <Link to='/register' style={{ textDecoration: 'none' }}>
               Don't have an account? Sign Up
             </Link>
+          </Box>
         </form>
-      </Box>  
+      </Box>
     </Container>
 
   )

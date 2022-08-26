@@ -31,15 +31,33 @@ def home():
 	user = session.get('user', None)
 	if user is None:
 		return jsonify(msg='Must be logged in')
-	query = """
-		SELECT weight.weight, weight.date, users.first_name FROM weight
-		JOIN users ON weight.user_id = users.id
-		WHERE users.id = %s
+	weight_query = """
+		SELECT weight.weight, weight.date FROM weight
+		WHERE user_id = %s
 		ORDER BY weight.date DESC LIMIT 1
 	"""
-	g.db['cursor'].execute(query, (user['id'],))
-	user_current = g.db['cursor'].fetchall()
-	return jsonify(user_current)
+	g.db['cursor'].execute(weight_query, (user['id'],))
+	weight_current = g.db['cursor'].fetchone()
+	height_query = """
+		SELECT height.height, height.date FROM height
+		WHERE user_id = %s
+		ORDER BY height.date DESC LIMIT 1
+	"""
+	g.db['cursor'].execute(height_query, (user['id'],))
+	height_current = g.db['cursor'].fetchone()
+	hr_query = """
+		SELECT heart_rate.heart_rate, heart_rate.date FROM heart_rate
+		WHERE user_id = %s
+		ORDER BY heart_rate.date DESC LIMIT 1
+	"""
+	g.db['cursor'].execute(hr_query, (user['id'],))
+	hr_current = g.db['cursor'].fetchone()
+	return jsonify([
+		{"weight": weight_current},
+		{"height": height_current},
+		{"heart_rate": hr_current}
+	])
+	# return jsonify(weight=weight_current, height=height_current, hr=hr_current)
 
 # Weight - Show
 @app.route('/weight')
@@ -52,6 +70,7 @@ def show_weight():
 		SELECT weight, date, weight.id FROM weight
 		JOIN users ON weight.user_id = users.id
 		WHERE weight.user_id = %s
+		ORDER BY weight.date
 	"""
 	cur.execute(query, (user['id'],))
 	weight = cur.fetchall()
@@ -94,59 +113,176 @@ def new_weight():
 
 
 # Heart Rate - Show
-# @app.route('/hr/<user_id>')
-# def show_hr(user_id):
-# 	cur = g.db['cursor']
-# 	query = """
-# 		SELECT heart_rate FROM from heart_rate
-# 		JOIN users ON heart_rate.user_id = users.id
-# 		where users.id = %s
-# 	"""
-# 	cur.execute(qeury, (user_id,))
-# 	hr = cur.fetchall()
-# 	username = weight[0]['username']
-# 	return jsonify(username=username, hr=hr)
+@app.route('/heart_rate')
+def show_hr():
+	cur = g.db['cursor']
+	user = session.get('user', None)
+	if user is None:
+		return jsonify(msg='Must be logged in')
+	query = """
+		SELECT heart_rate.heart_rate, heart_rate.date, heart_rate.id FROM heart_rate
+		JOIN users ON heart_rate.user_id = users.id
+		WHERE heart_rate.user_id = %s
+		ORDER BY heart_rate.date
+	"""
+	cur.execute(query, (user['id'],))
+	heart_rate = cur.fetchall()
+	return jsonify(heart_rate=heart_rate)
 
-# @app.route('/hr/<heart_rate_id>', methods=['DELTE'])
-# def delete_hr(heart_rate_id):
+# Heart Rate - Delete
+@app.route('/heart_rate/<heart_rate_id>', methods=['DELETE'])
+def delete_hr(heart_rate_id):
+	user = session.get('user', None)
+	if user is None:
+		return jsonify(msg='Must be logged in')
+	query = """
+		DELETE FROM heart_rate
+		WHERE id = %s
+		RETURNING *
+	"""
+	cur = g.db['cursor']
+	cur.execute(query, (heart_rate_id,))
+	g.db['connection'].commit()
+	heart_rate = cur.fetchone()
+	return jsonify(heart_rate)
+
+#  Heart Rate - New
+@app.route('/heart_rate/new', methods=['POST'])
+def new_hr():
+	user = session.get('user', None)
+	if user is None:
+		return jsonify(msg='Must be logged in')
+	heart_rate = request.json['heart_rate']
+	query = """
+		INSERT INTO heart_rate
+		(heart_rate, user_id)
+		VALUES (%s, %s)
+		RETURNING *
+	"""
+	g.db['cursor'].execute(query, (heart_rate, user['id'],))
+	g.db['connection'].commit()
+	newHR = g.db['cursor'].fetchone()
+	return jsonify(newHR)
+
+# Height - Show
+@app.route('/height')
+def show_height():
+	cur = g.db['cursor']
+	user = session.get('user', None)
+	if user is None:
+		return jsonify(msg='Must be logged in')
+	query = """
+		SELECT height, date, height.id FROM height
+		JOIN users ON height.user_id = users.id
+		WHERE height.user_id = %s
+		ORDER BY height.date
+	"""
+	cur.execute(query, (user['id'],))
+	height = cur.fetchall()
+	return jsonify(height=height)
+
+# Height Update
+# @app.route('/height/<height_id>', methods=['PUT'])
+# def update_height(height_id):
+#     text = request.json['text']
+#     query = """
+#         UPDATE height
+#         SET height.height = %s
+#         WHERE height.id = %s
+#         RETURNING *
+#     """
+#     cur = g.db['cursor']
+#     cur.execute(query, (height, height_id))
+#     g.db['connection'].commit()
+#     updatedHeight = g.db['cursor'].fetchone()
+#     return jsonify(updatedHeight)
+
+# Height - Delete
+# @app.route('/weight/<weight_id>', methods=['DELETE'])
+# def delete_weight(weight_id):
+# 	user = session.get('user', None)
+# 	if user is None:
+# 		return jsonify(msg='Must be logged in')
 # 	query = """
-# 		DELETE FROM heart_rate
+# 		DELETE FROM weight
 # 		WHERE id = %s
 # 		RETURNING *
 # 	"""
 # 	cur = g.db['cursor']
-# 	cur.execute(query, (heart_rate_id,))
+# 	cur.execute(query, (weight_id,))
 # 	g.db['connection'].commit()
-# 	hr = cur.fetchone()
-# 	return jsonify(hr)
+# 	weight = cur.fetchone()
+# 	return jsonify(weight)
 
+#   Height - New
+@app.route('/height/new', methods=['POST'])
+def new_height():
+	user = session.get('user', None)
+	if user is None:
+		return jsonify(msg='Must be logged in')
+	height = request.json['height']
+	query = """
+		INSERT INTO height
+		(height, user_id)
+		VALUES (%s, %s)
+		RETURNING *
+	"""
+	g.db['cursor'].execute(query, (height, user['id'],))
+	g.db['connection'].commit()
+	newHeight = g.db['cursor'].fetchone()
+	return jsonify(newHeight)
 
-# Blood Pressure - Show
-# @app.route('/bp/<user_id>')
-# def show_hr(user_id):
+# # Blood Pressure - Show
+# @app.route('/weight')
+# def show_weight():
 # 	cur = g.db['cursor']
+# 	user = session.get('user', None)
+# 	if user is None:
+# 		return jsonify(msg='Must be logged in')
 # 	query = """
-# 		SELECT systolic_bp, diastolic_bp FROM from blood_pressure
-# 		JOIN users ON blood_pressure.user_id = users.id
-# 		where users.id = %s
+# 		SELECT weight, date, weight.id FROM weight
+# 		JOIN users ON weight.user_id = users.id
+# 		WHERE weight.user_id = %s
+# 		ORDER BY weight.date
 # 	"""
-# 	cur.execute(qeury, (user_id,))
-# 	bp = cur.fetchall()
-# 	username = weight[0]['username']
-# 	return jsonify(usernamen=username, bp=bp)
+# 	cur.execute(query, (user['id'],))
+# 	weight = cur.fetchall()
+# 	return jsonify(weight=weight)
 
-# @app.route('/hr/<blood_pessure_id>', methods=['DELTE'])
-# def delete_bp(blood_pessure_id):
+# # Blood Pressure - Delete
+# @app.route('/weight/<weight_id>', methods=['DELETE'])
+# def delete_weight(weight_id):
+# 	user = session.get('user', None)
+# 	if user is None:
+# 		return jsonify(msg='Must be logged in')
 # 	query = """
-# 		DELETE FROM blood_pessure
+# 		DELETE FROM weight
 # 		WHERE id = %s
 # 		RETURNING *
 # 	"""
 # 	cur = g.db['cursor']
-# 	cur.execute(query, (heart_rate_id,))
+# 	cur.execute(query, (weight_id,))
 # 	g.db['connection'].commit()
-# 	bp = cur.fetchone()
-# 	return jsonify(bp)
+# 	weight = cur.fetchone()
+# 	return jsonify(weight)
+
+# #  Blood Pressure - New
+# @app.route('/weight/new', methods=['POST'])
+# def new_weight():
+# 	user = session.get('user', None)
+# 	if user is None:
+# 		return jsonify(msg='Must be logged in')
+# 	weight = request.json['weight']
+# 	query = """
+# 		INSERT INTO weight
+# 		(weight, user_id)
+# 		VALUES (%s, %s)
+# 		RETURNING *
+# 	"""
+# 	g.db['cursor'].execute(query, (weight, user['id'],))
+# 	g.db['connection'].commit()
+# 	newWeight = g.db['cursor'].fetchone()
+# 	return jsonify(newWeight)
 
 # Register Route
 @app.route('/register', methods=['POST'])
@@ -219,3 +355,28 @@ def is_authenticated():
 		return jsonify(success=True, user=user)
 	else:
 		return jsonify(success=False, msg='User is not logged in')	
+
+# Update User Route
+@app.route('/user/<user_id>', methods=['PUT'])
+def update_user_id(user_id):
+	user = session.get('user', None)
+	if user is None:
+		return jsonify(msg='Must be logged in')
+	first_name = request.json['first_name']
+	surname = request.json['surname']
+	email = request.json['email']
+	query = """
+		UPDATE users
+		SET first_name = %s,
+		surname = %s,
+		email = %s
+		WHERE users.id = %s
+		RETURNING *
+	"""
+	cur = g.db['cursor']
+	cur.execute(query, (first_name, surname, email, user['id']))
+	g.db['connection'].commit()
+	updatedUser = g.db['cursor'].fetchone()
+	updatedUser.pop('password_hash')
+	return jsonify(updatedUser)
+
