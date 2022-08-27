@@ -74,7 +74,7 @@ def show_weight():
 	"""
 	cur.execute(query, (user['id'],))
 	weight = cur.fetchall()
-	return jsonify(weight=weight)
+	return jsonify(weight)
 
 # Weight - Delete
 @app.route('/weight/<weight_id>', methods=['DELETE'])
@@ -127,7 +127,7 @@ def show_hr():
 	"""
 	cur.execute(query, (user['id'],))
 	heart_rate = cur.fetchall()
-	return jsonify(heart_rate=heart_rate)
+	return jsonify(heart_rate)
 
 # Heart Rate - Delete
 @app.route('/heart_rate/<heart_rate_id>', methods=['DELETE'])
@@ -179,7 +179,7 @@ def show_height():
 	"""
 	cur.execute(query, (user['id'],))
 	height = cur.fetchall()
-	return jsonify(height=height)
+	return jsonify(height)
 
 # Height Update
 # @app.route('/height/<height_id>', methods=['PUT'])
@@ -198,21 +198,21 @@ def show_height():
 #     return jsonify(updatedHeight)
 
 # Height - Delete
-# @app.route('/weight/<weight_id>', methods=['DELETE'])
-# def delete_weight(weight_id):
-# 	user = session.get('user', None)
-# 	if user is None:
-# 		return jsonify(msg='Must be logged in')
-# 	query = """
-# 		DELETE FROM weight
-# 		WHERE id = %s
-# 		RETURNING *
-# 	"""
-# 	cur = g.db['cursor']
-# 	cur.execute(query, (weight_id,))
-# 	g.db['connection'].commit()
-# 	weight = cur.fetchone()
-# 	return jsonify(weight)
+@app.route('/height/<height_id>', methods=['DELETE'])
+def delete_height(height_id):
+	user = session.get('user', None)
+	if user is None:
+		return jsonify(msg='Must be logged in')
+	query = """
+		DELETE FROM height
+		WHERE id = %s
+		RETURNING *
+	"""
+	cur = g.db['cursor']
+	cur.execute(query, (height_id,))
+	g.db['connection'].commit()
+	height = cur.fetchone()
+	return jsonify(height)
 
 #   Height - New
 @app.route('/height/new', methods=['POST'])
@@ -378,5 +378,6 @@ def update_user_id(user_id):
 	g.db['connection'].commit()
 	updatedUser = g.db['cursor'].fetchone()
 	updatedUser.pop('password_hash')
+	session['user'] = updatedUser
 	return jsonify(updatedUser)
 

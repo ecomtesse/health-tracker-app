@@ -21,17 +21,14 @@ const AccountUpdate = ({ user, handleUpdate }) => {
   }
 
   const handleSubmit = async (event) => {
-    console.log(user)
     event.preventDefault()
     const res = await fetch(`/user/${user.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(fields)
     })
-    console.log(res.ok)
     if (res.ok) {
       const updatedUser = await res.json()
-      // console.log(updatedUser)
       handleUpdate(updatedUser)
       navigate('/user/details')
     } else {

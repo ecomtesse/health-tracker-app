@@ -5,7 +5,6 @@ import { Typography, TextField, Button, InputAdornment, Paper, Container, Link }
 import BasicTable from "./Displays/TableData"
 import Chart from "./Displays/Chart"
 
-
 const metricInfo = {
   weight: {
     unit: "kg",
@@ -35,26 +34,33 @@ const metricInfo = {
 
 const capitalise = (str) => str.charAt(0).toUpperCase() + str.slice(1)
 
-const Metric = () => {
+const _Metric = () => {
+
   const { metric } = useParams()
-  const [userMetric, setUserMetric] = useState([])
+
+  const [userMetric, setUserMetric] = useState(null)
   const [chartData, setChartData] = useState([])
   const [field, setField] = useState({ [metric]: '' })
+  // console.log(chartData);
+
 
   const getMetric = async (met) => {
     const url = `/${met}`
     const res = await fetch(url)
     const data = await res.json()
+    console.log(data, met)
     setUserMetric(data)
-  }
+    // console.log(data[met])
 
+  }
   // Handle change and submit for new entry
   const handleChange = async (event) => {
+    // console.log(event.target.value)
     setField({
-      [metric]: event.target.value
+      ...field,
+      [event.target.name]: event.target.value
     })
   }
-
   const handleSubmit = async (event) => {
     event.preventDefault()
     const res = await fetch(`/${metric}/new`, {
@@ -64,17 +70,27 @@ const Metric = () => {
     })
     // console.log(res)
     const data = await res.json()
-    setUserMetric([...userMetric, data])
+    console.log(data)
+    setUserMetric({
+      [metric]: [...userMetric[metric], data]
+    })
     setField({ [metric]: '' })
   }
 
   // Delete previous entry
   const handleDelete = async (IdToDelete) => {
+    // console.log("delete entry: ", IdToDelete)
     const res = await fetch(`/${metric}/${IdToDelete}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json"
+      }
     })
-    const updatedMetric = userMetric.filter((m) => m.id !== IdToDelete)
-    setUserMetric(updatedMetric)
+    const updateMetric = userMetric[metric].filter((m) => m.id !== IdToDelete)
+    // console.log(updateMetric)
+    setUserMetric({
+      [metric]: updateMetric
+    })
   }
 
   useEffect(() => {
@@ -82,7 +98,9 @@ const Metric = () => {
   }, [metric])
 
   useEffect(() => {
-    setChartData(getChartData(userMetric, metric))
+    if (userMetric) {
+      setChartData(getChartData(userMetric[metric], metric))
+    }
   }, [userMetric])
 
   // Preparing the data format for the chart
@@ -95,10 +113,12 @@ const Metric = () => {
     })
   }
 
+
+
   return (
     <Container component="main" align="center" sx={{ pb: 4 }} >
       <Typography variant="h4" component="h2" sx={{ mt: 2 }}>Your {capitalise(metric)}</Typography>
-      {!!chartData.length && <Chart chartData={chartData} metric={metric} metricInfo={metricInfo} capitalise={capitalise} />}
+      {chartData && <Chart chartData={chartData} metric={metric} metricInfo={metricInfo} capitalise={capitalise} />}
       <Box className="form" align="left" sx={{ mx: 12, my: 2 }}>
         <form className="new-entry" onSubmit={handleSubmit}>
           <Typography variant="h6" component="span" sx={{ pr: 2 }}>Add A New Entry:</Typography>
@@ -146,10 +166,10 @@ const Metric = () => {
       </Box >
       <Box className="entries" sx={{ mx: 12 }}>
         <Typography variant="h5" component="h3" align="left" sx={{ pb: 1 }}>Entries</Typography>
-        {!!userMetric.length && <BasicTable userData={userMetric} handleDelete={handleDelete} metric={metric} metricInfo={metricInfo} capitalise={capitalise} />}
+        {/* { userMetric && <BasicTable userData={userMetric} handleDelete={handleDelete} metric={metric} metricInfo={metricInfo} capitalise={capitalise} />} */}
       </Box>
     </Container>
   )
 }
 
-export default Metric
+export default _Metric

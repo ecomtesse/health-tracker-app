@@ -10,7 +10,7 @@ import { IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 const DataRow = (props) => {
-  const { row, handleDelete } = props
+  const { row, metric, handleDelete } = props
   return (
     <TableRow
       sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -18,7 +18,7 @@ const DataRow = (props) => {
       <TableCell component="th" scope="row">
         {new Date(row.date).toLocaleDateString("en-AU")}
       </TableCell>
-      <TableCell align="right">{row.weight}</TableCell>
+      <TableCell align="right">{row[metric]}</TableCell>
       <TableCell align="right">
         <IconButton aria-label="delete" color="error" onClick={() => handleDelete(row.id)}>
           <DeleteIcon />
@@ -29,11 +29,10 @@ const DataRow = (props) => {
 }
 
 const BasicTable = ({ userData, handleDelete, metric, metricInfo, capitalise }) => {
-  // console.log(userData, metric)
-  const reverseData = userData[metric].slice().reverse()
+  const reverseData = userData.slice().reverse()
   const tableRows = reverseData.map((row) => {
     return (
-      <DataRow key={row.id} row={row} handleDelete={handleDelete}/>
+      <DataRow key={row.id} row={row} metric={metric} handleDelete={handleDelete}/>
     )
   })
 
