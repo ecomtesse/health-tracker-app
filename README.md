@@ -123,7 +123,7 @@ Sign In Screen
 
 ---
 
-## Hudrles & Challenges
+## Hurdles & Challenges
 
 In developing this app I encountered a number of challenges (both expected and unexpected).
 
@@ -143,7 +143,7 @@ I continued troubleshooting and enlisted the help of our lead instructor. While 
 
 In the end, I refactored the queries to the database in the back end so that the data provided to the front end was nested one less level and re-wrote the metrics.jsx file and this resolved the bug.
 
-#### Integrating Google Maps & Neaby Search
+#### Integrating Google Maps API & Neaby Search
 
 One of my goals for this project was to use Google Maps and Nearby Search to allow users to enter their postcode or suburb and return a list of doctors near their location. 
 
