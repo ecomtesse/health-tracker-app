@@ -9,7 +9,7 @@ import Chart from "./Displays/Chart"
 const metricInfo = {
   weight: {
     unit: "kg",
-    instructions: "Remove all items from pockets, shoes and any heavy clothing. Make sure the scales are on a flat surface. If possible use the same scales each time you weight yourself as different scales will have margins of error and be calibrated differently. Try not to weigh yourself too frequency, once per month if sufficient. Change to weight is gradual so you may not see meaningful results if you weigh yourself too frequency",
+    instructions: "Remove all items from pockets, shoes and any heavy clothing. Make sure the scales are on a flat surface. If possible use the same scales each time you weight yourself as different scales will have margins of error and be calibrated differently. Try not to weigh yourself too frequently, once per month is sufficient. Change to weight is gradual so you may not see meaningful results if you weigh yourself too frequently",
     links: {
       url: "https://www.healthdirect.gov.au/obesity#:~:text=Obesity%20is%20not%20just%20about,to%20help%20with%20weight%20loss.",
       desc: "Obesity and health effects",
